@@ -1,0 +1,99 @@
+
+
+'''
+#-----------------------------------------------------------------#
+|                                                                 |
+| Script Coder       :  Azahaf Otman                              |
+|                                                                 |
+| instagram account  :  https://www.instgram.com/imotmanee        |
+|                                                                 |
+| Python page        :  https://www.instgram.com/completepython   |
+|                                                                 |
+| YouTube Channel    :  https://bit.ly/3mZvsQn                    |
+|                                                                 |
+#-----------------------------------------------------------------#
+'''
+
+import requests
+from bs4 import BeautifulSoup 
+import pandas as pd
+import pyttsx3
+
+engine = pyttsx3.init()
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[2].id)
+
+
+
+while True:
+      class EbayProductScraper():
+
+            def talk(text):
+                  engine.say(text)
+                  engine.runAndWait()
+
+                            
+            # Deciding the user agent
+            headers = {'user_agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36'}
+
+            titles  =  []   # This dictionary will include all product titles
+            prices  =  []   # This dictionary will include all product prices
+            ratings =  []   # This dictionary will include all product ratings
+            images  =  []   # This dictionary will include all product image urls
+            PageNum =   1   # Deciding the number of pages to scrape , in this case we want to scrape only 2 pages
+
+            # Generatign all URLS to be visited
+            for i in range(1, PageNum+1):
+                  talk('Type a Keyword please')
+                  keywords = input('Type a Keyword : ')
+                  print(' >>> Searching for ', keywords, ' on Ebay.com ')
+                  talk('  >>> Searching for kewords on ebay database ')
+                  talk(keywords)
+                  url = ('https://www.ebay.com/sch/i.html?_from=R40&_trksid=p2380057.m570.l1313&_nkw='+str(keywords)+'&_sacat={}').format(i)
+                  pages = []
+                  pages.append(url)
+
+            # Creating a for loop URL to generate each link information
+            for page in pages:
+                  r = requests.get(page, headers=headers)
+                  if r.status_code <= 299:
+                        print(' >>> Website is accessable :', str(r.status_code)) 
+                  else :
+                        print(' >>> Website Error: ', r.status_code)
+                        
+                  soup = BeautifulSoup(r.text, 'html.parser')
+                  
+                  # Grap Product Tiles
+                  for t in soup.find_all('h3', {'class':'s-item__title'}):
+                        tt = t.get_text()
+                        titles.append(tt)
+                  # Grap Product Prices
+                  for p in soup.find_all('span', {'class':'s-item__price'}):
+                        pp = p.get_text()
+                        prices.append(pp)
+                  # Grap Product Ratings
+                  for r in soup.find_all('span', {'class':'s-item__reviews-count'}):
+                        rr = r.span.get_text()
+
+                        ratings.append(rr)
+                  # Grap Product Image URLS
+                  img_divs =soup.findAll('div', class_='s-item__image-wrapper')
+                  for thumbs in img_divs:
+                        tgs=thumbs.find('img',class_='s-item__image-img')
+                        urls=''+str(tgs['src'])
+                        images.append(urls)
+                        
+            # Save information  in  excel file
+            info = {'title':titles, 'price': prices, 'rating': ratings, 'imag_urls': images}
+            df = pd.DataFrame.from_dict(info, orient='index')
+            df = df.transpose()
+            df.index+=1
+            file_name = keywords
+            df.to_excel('files/'+keywords+'.xlsx')
+            print(' || Info succesfuly saved in  folder||')
+
+            talk(' reminder, The process is finished , also the files have been saved correctly')
+            '''  df = pd.DataFrame(data=info)  '''
+
+      Bot = EbayProductScraper()
+
