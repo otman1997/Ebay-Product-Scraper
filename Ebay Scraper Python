@@ -14,10 +14,10 @@
 #-----------------------------------------------------------------#
 '''
 
-import requests
-from bs4 import BeautifulSoup 
-import pandas as pd
-import pyttsx3
+import requests                    # pip install requests
+from bs4 import BeautifulSoup      # pip install bs4
+import pandas as pd                # pip install pandas
+import pyttsx3                     # pip install pyttsx3
 
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
